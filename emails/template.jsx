@@ -35,7 +35,7 @@ const PREVIEW_DATA = {
     },
   },
   budgetAlert: {
-    userName: "John Doe",
+    userName: "harsh",
     type: "budget-alert",
     data: {
       percentageUsed: 85,
@@ -90,7 +90,7 @@ export default function EmailTemplate({
                   ([category, amount]) => (
                     <div key={category} style={styles.row}>
                       <Text style={styles.text}>{category}</Text>
-                      <Text style={styles.text}>${amount}</Text>
+                      <Text style={styles.text}>₹{amount}</Text>
                     </div>
                   )
                 )}
