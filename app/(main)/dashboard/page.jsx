@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { Suspense } from "react";
 import {CreateAccountDrawer} from "@/components/ui/create-account-drawer";
