@@ -1,19 +1,27 @@
-import { withClerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { authMiddleware, clerkClient } from "@clerk/nextjs";  // ✅ Correct import
 import { NextResponse } from "next/server";
 import arcjet, { createMiddleware, detectBot, shield } from "@arcjet/next";
 
-// Protected routes
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/account(.*)",
-  "/transaction(.*)",
-]);
+const isProtectedRoute = (pathname) => {
+  return (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/account") ||
+    pathname.startsWith("/transaction")
+  );
+};
 
-const clerk = withClerkMiddleware((auth, req) => {
-  if (!auth().userId && isProtectedRoute(req)) {
-    return NextResponse.redirect("/sign-in");
-  }
-  return NextResponse.next();
+const clerk = authMiddleware({
+  beforeAuth: async (req) => {
+    const { pathname } = req.nextUrl;
+    if (isProtectedRoute(pathname)) {
+      const auth = await clerkClient.authenticateRequest({ req, loadUser: true });
+      if (!auth.userId) {
+        const signInUrl = new URL("/sign-in", req.url);
+        return NextResponse.redirect(signInUrl);
+      }
+    }
+    return NextResponse.next();
+  },
 });
 
 const aj = arcjet({
