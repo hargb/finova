@@ -1,4 +1,4 @@
-import { authMiddleware, auth } from "@clerk/nextjs"; // ⬅️ auth bhi import kar
+import { authMiddleware, auth } from "@clerk/nextjs/server"; // ⬅️ auth bhi import kar
 import { NextResponse } from "next/server";
 import arcjet, { createMiddleware, detectBot, shield } from "@arcjet/next";
 
