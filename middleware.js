@@ -1,3 +1,7 @@
+
+
+
+
 import arcjet, { createMiddleware, detectBot, shield } from "@arcjet/next";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -50,6 +54,7 @@ const clerk = clerkMiddleware(async (auth, req) => {
 export default createMiddleware(aj,clerk);
 
 export const config = {
+  runtime: "nodejs",
   matcher: [
     // Skip Next.js internals and all static files unless found in search params
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
