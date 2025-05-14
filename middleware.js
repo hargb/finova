@@ -1,4 +1,4 @@
-import { authMiddleware, auth } from "@clerk/nextjs/server"; // ⬅️ auth bhi import kar
+import { withClerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import arcjet, { createMiddleware, detectBot, shield } from "@arcjet/next";
 
@@ -10,17 +10,15 @@ const isProtectedRoute = (pathname) => {
   );
 };
 
-const clerk = authMiddleware({
-  beforeAuth: (req) => {
-    const { pathname } = req.nextUrl;
-    const { userId } = auth(); // ⬅️ yaha userId uthao
-    
-    if (isProtectedRoute(pathname) && !userId) {
-      return NextResponse.redirect(new URL("/sign-in", req.url));
-    }
-    
-    return NextResponse.next();
-  },
+const clerk = withClerkMiddleware((auth, req) => {
+  const { pathname } = req.nextUrl;
+
+  if (!auth().userId && isProtectedRoute(pathname)) {
+    const signInUrl = new URL("/sign-in", req.url);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  return NextResponse.next();
 });
 
 const aj = arcjet({
@@ -34,7 +32,7 @@ const aj = arcjet({
   ],
 });
 
-// Final middleware
+// Combine
 export default createMiddleware(aj, clerk);
 
 export const config = {
