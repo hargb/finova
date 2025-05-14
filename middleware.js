@@ -1,4 +1,4 @@
-import { authMiddleware, clerkClient } from "@clerk/nextjs";  // ✅ Correct import
+import { authMiddleware } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 import arcjet, { createMiddleware, detectBot, shield } from "@arcjet/next";
 
@@ -14,11 +14,7 @@ const clerk = authMiddleware({
   beforeAuth: async (req) => {
     const { pathname } = req.nextUrl;
     if (isProtectedRoute(pathname)) {
-      const auth = await clerkClient.authenticateRequest({ req, loadUser: true });
-      if (!auth.userId) {
-        const signInUrl = new URL("/sign-in", req.url);
-        return NextResponse.redirect(signInUrl);
-      }
+      return NextResponse.redirect("/sign-in");
     }
     return NextResponse.next();
   },
@@ -35,7 +31,6 @@ const aj = arcjet({
   ],
 });
 
-// Combine arcjet + clerk
 export default createMiddleware(aj, clerk);
 
 export const config = {
