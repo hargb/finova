@@ -118,3 +118,14 @@ SUPABASE_ANON_KEY=
 
 GEMINI_API_KEY=
 ARCJET_KEY=
+
+## Screenshots
+
+### Dashboard
+![Dashboard](public/dashboard.png)
+
+### Add Transaction
+![Transaction](public/transaction.png)
+
+### AI Report
+![Report](public/report.png)
