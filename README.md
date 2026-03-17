@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Finova – AI Powered Finance Management Platform 💰🤖
 
-## Getting Started
+Finova is an AI-driven personal finance management platform that helps users track expenses, manage budgets, and generate smart financial insights using AI.
+It automates financial tracking and provides intelligent reports to help users make better financial decisions.
 
-First, run the development server:
+🚀 Features
+🧾 AI Receipt Scanner
 
-```bash
+Upload receipts
+
+AI extracts transaction details automatically
+
+Adds them to your expense tracker
+
+📊 Smart Budget Tracking
+
+Set monthly budgets
+
+Track spending in different categories
+
+Get alerts when limits are exceeded
+
+🤖 AI Monthly Reports
+
+Generates AI powered financial summaries
+
+Shows spending patterns
+
+Provides financial insights
+
+🔔 Smart Notifications
+
+Real-time toast notifications
+
+Alerts for unusual transactions
+
+Budget limit reminders
+
+💳 Transaction Management
+
+Add, edit, delete transactions
+
+Categorized expense tracking
+
+Automatic updates
+
+🔐 Secure Authentication
+
+User authentication using Clerk
+
+Secure login and signup
+
+🛠 Tech Stack
+
+Frontend
+
+Next.js
+
+Tailwind CSS
+
+ShadCN UI
+
+Backend
+
+Supabase
+
+PostgreSQL
+
+AI Integration
+
+Google Gemini AI
+
+Other Tools
+
+Arcjet (Security)
+
+Inngest (Background jobs)
+
+Clerk Authentication
+
+Lucide React Icons
+
+📂 Project Architecture
+Finova
+ ├── app
+ ├── components
+ ├── lib
+ ├── hooks
+ ├── utils
+ ├── database
+ └── public
+⚙️ Installation
+
+Clone the repository
+
+git clone https://github.com/hargb/finova.git
+
+Go to project directory
+
+cd finova
+
+Install dependencies
+
+npm install
+
+Run development server
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🌐 Environment Variables
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create .env.local
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GEMINI_API_KEY=
+ARCJET_KEY=
