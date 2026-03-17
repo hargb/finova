@@ -120,16 +120,22 @@ GEMINI_API_KEY=
 ARCJET_KEY=
 
 ## Screenshots
+### HomePage
+![HomePage](public/HomePage.png)
+![HomePage](public/HomePage2.png)
+![HomePage](public/HomePage3.png)
+![HomePage](public/HomePage4.png)
 
 ### Dashboard
 ![Dashboard](public/Dashboard1.png)
 ![Dashboard](public/Dashboard2.png)
-![Dashboard](public/Dashboard3.png)
-![Dashboard](public/Dashboard4.png)
-![Dashboard](public/Dashboard5.png)
+
 
 ### Add Transaction
-![Transaction](public/transaction.png)
+![Transaction](public/AddTransaction.png)
+![Transaction](public/AddTransaction2.png)
 
 ### AI Report
-![Report](public/report.png)
+![Report](public/ScanReceiptwithAI.png)
+![Report](public/BudgetAlertViaMAil.png)
+
