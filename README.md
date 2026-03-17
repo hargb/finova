@@ -122,7 +122,11 @@ ARCJET_KEY=
 ## Screenshots
 
 ### Dashboard
-![Dashboard](public/dashboard.png)
+![Dashboard](public/Dashboard1.png)
+![Dashboard](public/Dashboard2.png)
+![Dashboard](public/Dashboard3.png)
+![Dashboard](public/Dashboard4.png)
+![Dashboard](public/Dashboard5.png)
 
 ### Add Transaction
 ![Transaction](public/transaction.png)
