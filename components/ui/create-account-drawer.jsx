@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller } from "react-hook-form";
-
 import { Loader2 } from "lucide-react";
 import useFetch from "@/hooks/use-fetch";
 import { toast } from "sonner";
@@ -32,9 +30,7 @@ import { accountSchema } from "@/app/lib/schema";
 
 export function CreateAccountDrawer({ children }) {
   const [open, setOpen] = useState(false);
-  
   const {
-    control, 
     register,
     handleSubmit,
     formState: { errors },
@@ -46,7 +42,7 @@ export function CreateAccountDrawer({ children }) {
     defaultValues: {
       name: "",
       type: "CURRENT",
-      balance: 0.00,
+      balance: 0,
       isDefault: false,
     },
   });
@@ -58,58 +54,23 @@ export function CreateAccountDrawer({ children }) {
     data: newAccount,
   } = useFetch(createAccount);
 
-  // 🔍 Debugging API Call Response
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      if (newAccount) console.log("🆕 New Account Response:", newAccount);
-      if (error) console.error("❌ API Error:", error);
-    }
-  }, [newAccount, error]);
-  
-  
-  
-  
-
-  // 🔍 Debugging Form Validation
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      console.warn("⚠️ Form Validation Errors:", errors);
-    }
-  }, [errors]);
-
   const onSubmit = async (data) => {
-    console.log("🚀 Submitting Data:", data);
+    await createAccountFn(data);
+  };
 
-    // Ensure balance is a valid number
-    const balance = parseFloat(data.balance);
-    if (isNaN(balance) || balance < 0) {
-      console.error("❌ Invalid Balance:", data.balance);
-      toast.error("Balance must be a valid positive number.");
-      return;
-    }
-
-    const requestData = { ...data, balance };
-    console.log("📡 Sending API Request with:", requestData);
-
-    try {
-      const response = await createAccountFn(requestData);
-      
-      if (!response) {
-        console.error("❌ API returned undefined or null.");
-        toast.error("Something went wrong. Please try again.");
-        return;
-      }
-
-      console.log("✅ API Response:", response);
+  useEffect(() => {
+    if (newAccount) {
       toast.success("Account created successfully");
+      reset();
+      setOpen(false);
+    }
+  }, [newAccount, reset]);
 
-      reset(); // Clear form
-      setTimeout(() => setOpen(false), 150); // Smooth closing
-    } catch (error) {
-      console.error("❌ API Call Failed:", error);
+  useEffect(() => {
+    if (error) {
       toast.error(error.message || "Failed to create account");
     }
-  };
+  }, [error]);
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
@@ -120,35 +81,52 @@ export function CreateAccountDrawer({ children }) {
         </DrawerHeader>
         <div className="px-4 pb-4">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Account Name Input */}
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
                 Account Name
               </label>
-              <Input id="name" placeholder="e.g., Main Checking" {...register("name")} />
-              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+              <Input
+                id="name"
+                placeholder="e.g., Main Checking"
+                {...register("name")}
+              />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
             </div>
 
-            {/* Account Type Select */}
             <div className="space-y-2">
-              <label htmlFor="type" className="text-sm font-medium">
+              <label
+                htmlFor="type"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
                 Account Type
               </label>
-              <Select value={watch("type")} onValueChange={(value) => setValue("type", value)}>
+              <Select
+                onValueChange={(value) => setValue("type", value,{shouldValidate:true})}
+                defaultValue={watch("type")}
+              >
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Select type"  />
+                  <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="CURRENT">Current</SelectItem>
                   <SelectItem value="SAVINGS">Savings</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.type && <p className="text-sm text-red-500">{errors.type.message}</p>}
+              {errors.type && (
+                <p className="text-sm text-red-500">{errors.type.message}</p>
+              )}
             </div>
 
-            {/* Initial Balance Input */}
             <div className="space-y-2">
-              <label htmlFor="balance" className="text-sm font-medium">
+              <label
+                htmlFor="balance"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
                 Initial Balance
               </label>
               <Input
@@ -156,38 +134,43 @@ export function CreateAccountDrawer({ children }) {
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                {...register("balance",{valueAsNumber: true,min:0,required: "Balance is required"})}
+                {...register("balance")}
               />
-              {errors.balance && <p className="text-sm text-red-500">{errors.balance.message}</p>}
+              {errors.balance && (
+                <p className="text-sm text-red-500">{errors.balance.message}</p>
+              )}
             </div>
 
-            {/* Default Account Switch */}
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-0.5">
-                <label htmlFor="isDefault" className="text-base font-medium cursor-pointer">
+                <label
+                  htmlFor="isDefault"
+                  className="text-base font-medium cursor-pointer"
+                >
                   Set as Default
                 </label>
                 <p className="text-sm text-muted-foreground">
-                  This account will be selected by default for transactions.
+                  This account will be selected by default for transactions
                 </p>
               </div>
-              <Controller
-  name="isDefault"
-  control={control}
-  render={({ field:{value,onChange} }) => (
-    <Switch id="isDefault" checked={value} onCheckedChange={onChange} />
-  )}
-/>
+              <Switch
+                id="isDefault"
+                checked={watch("isDefault")}
+                onCheckedChange={(checked) => setValue("isDefault", checked)}
+              />
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-4 pt-4">
               <DrawerClose asChild>
                 <Button type="button" variant="outline" className="flex-1">
                   Cancel
                 </Button>
               </DrawerClose>
-              <Button type="submit" className="flex-1" disabled={createAccountLoading}>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={createAccountLoading}
+              >
                 {createAccountLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
