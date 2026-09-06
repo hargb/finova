@@ -1,5 +1,3 @@
-import { seedTransactions } from "@/actions/seed";
-
 export async function POST() {
   if (process.env.NODE_ENV === "production") {
     return Response.json(
@@ -12,6 +10,8 @@ export async function POST() {
   }
 
   try {
+    const { seedTransactions } = await import("@/actions/seed");
+
     const result = await seedTransactions();
 
     if (!result?.success) {
