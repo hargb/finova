@@ -1,121 +1,281 @@
 "use server";
-import {db} from "@/lib/prisma";
-import {auth} from "@clerk/nextjs/server";
+
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-const serializeTransaction = (obj) =>{
-  const serialized = {...obj};
-  if (obj.balance){
+import { Prisma } from "@prisma/client";
+
+import { db } from "@/lib/prisma";
+
+const serializeTransaction = (obj) => {
+  if (!obj) return obj;
+
+  const serialized = { ...obj };
+
+  if (obj.balance !== undefined && obj.balance !== null) {
     serialized.balance = obj.balance.toNumber();
   }
-  if (obj.amount){
+
+  if (obj.amount !== undefined && obj.amount !== null) {
     serialized.amount = obj.amount.toNumber();
   }
+
   return serialized;
 };
-export async function updateDefaultAccount(accountId){
-  try{
-    const { userId } = await auth();
-    if (!userId) return { success: false, message: 
-   "Unauthorized" };
-    const user = await db.user.findUnique({ where: { 
-   ClerkUserid: userId } });
-    if (!user) return { success: false, message: 
-   "User not found" };
 
-   await db.account.updateMany({
-    where: { userId: user.id, isDefault: true },
-    data: { isDefault: false },
-  });
-  const account = await db.account.update({
-    where:{
-      id: accountId,
-      userId: user.id,
-    },
-    data:{isDefault: true},
-  });
-  revalidatePath("/dashboard");
-  return {success:true,data: serializeTransaction(account)};
-  } catch(error){
-return {success: false, error:error.message};
-  }
-}
-export async function getAccountWithTransactions(accountId){
+const getCurrentUser = async () => {
   const { userId } = await auth();
-  if (!userId) return { success: false, message: 
- "Unauthorized" };
-  const user = await db.user.findUnique({ where: { 
- ClerkUserid: userId } });
-  if (!user) return { success: false, message: 
- "User not found" };
- const account = await db.account.findUnique({
-  where: {id: accountId,userId: user.id},
-  include:{
-    transactions:{
-      orderBy:{date:"desc"},
-    },
-    _count:{
-      select:{transactions:true},
-    },
+
+  if (!userId) {
+    return null;
   }
- });
- if(!account) return null;
- return {
-  ...serializeTransaction(account),
-  transactions:account.transactions.map(serializeTransaction),
 
- };
-}
-export async function bulkDeleteTransactions(transactionIds){
-  try{
-const {userId} = await auth();
-if(!userId) throw new Error("Unauthorized");
-const user = await db.user.findUnique({
-  where: {ClerkUserid: userId},
-});
-if(!user){
-  throw new Error("User not found");
-}
-const transactions = await db.transaction.findMany({
-  where:{
-    id:{in:transactionIds},
-    userId: user.id,
-  },
-});
-const accountBalanceChanges = transactions.reduce((acc,transaction) =>{
-  const change = transaction.type === "EXPENSE" ? transaction.amount : -transaction.amount;
-  acc[transaction.accountId]= (acc[transaction.accountId] || 0 ) + change;
-  return acc;
-},{});
-
-
-// Delete transactions and update account balances in a transaction
-
-await db.$transaction(async(tx)=>{
-  // Delete transactions
-  await tx.transaction.deleteMany({
-    where:{
-      id:{in:transactionIds},
-      userId:user.id,
+  return db.user.findUnique({
+    where: {
+      ClerkUserid: userId,
     },
   });
+};
 
-  for(const[accountId,balanceChange] of Object.entries(
-    accountBalanceChanges
-  )){
-    await tx.account.update({
-      where:{id:accountId},
-      data:{
-        balance:{
-          increment:balanceChange,
+export async function updateDefaultAccount(accountId) {
+  try {
+    if (!accountId) {
+      return {
+        success: false,
+        error: "Account ID is required",
+      };
+    }
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
+    const account = await db.account.findFirst({
+      where: {
+        id: accountId,
+        userId: user.id,
+      },
+    });
+
+    if (!account) {
+      return {
+        success: false,
+        error: "Account not found",
+      };
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.account.updateMany({
+        where: {
+          userId: user.id,
+          isDefault: true,
+        },
+        data: {
+          isDefault: false,
+        },
+      });
+
+      await tx.account.update({
+        where: {
+          id: account.id,
+        },
+        data: {
+          isDefault: true,
+        },
+      });
+    });
+
+    const updatedAccount = await db.account.findUnique({
+      where: {
+        id: account.id,
+      },
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/account/${account.id}`);
+
+    return {
+      success: true,
+      data: serializeTransaction(updatedAccount),
+    };
+  } catch (error) {
+    console.error("updateDefaultAccount error:", error);
+
+    return {
+      success: false,
+      error: "Failed to update default account",
+    };
+  }
+}
+
+export async function getAccountWithTransactions(accountId) {
+  try {
+    if (!accountId) {
+      return null;
+    }
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return null;
+    }
+
+    const account = await db.account.findFirst({
+      where: {
+        id: accountId,
+        userId: user.id,
+      },
+      include: {
+        transactions: {
+          orderBy: {
+            date: "desc",
+          },
+        },
+
+        _count: {
+          select: {
+            transactions: true,
+          },
         },
       },
     });
+
+    if (!account) {
+      return null;
+    }
+
+    return {
+      ...serializeTransaction(account),
+
+      transactions: account.transactions.map(
+        serializeTransaction
+      ),
+    };
+  } catch (error) {
+    console.error("getAccountWithTransactions error:", error);
+
+    return null;
   }
-});
-revalidatePath("dashboard");
-revalidatePath("/account/[id]");
-return {success:true};
-  } catch(error){
-return {success:false,error:error.message};
+}
+
+export async function bulkDeleteTransactions(transactionIds) {
+  try {
+    if (
+      !Array.isArray(transactionIds) ||
+      transactionIds.length === 0
+    ) {
+      return {
+        success: false,
+        error: "No transactions selected",
+      };
+    }
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
+    const transactions = await db.transaction.findMany({
+      where: {
+        id: {
+          in: transactionIds,
+        },
+        userId: user.id,
+      },
+      select: {
+        id: true,
+        accountId: true,
+        type: true,
+        amount: true,
+      },
+    });
+
+    if (transactions.length === 0) {
+      return {
+        success: false,
+        error: "No valid transactions found",
+      };
+    }
+
+    /*
+     * When deleting:
+     *
+     * EXPENSE:
+     *   Original balance = balance - expense
+     *   Delete expense => balance + expense
+     *
+     * INCOME:
+     *   Original balance = balance + income
+     *   Delete income => balance - income
+     */
+
+    const accountBalanceChanges = {};
+
+    for (const transaction of transactions) {
+      const amount = new Prisma.Decimal(transaction.amount);
+
+      const change =
+        transaction.type === "EXPENSE"
+          ? amount
+          : amount.negated();
+
+      if (!accountBalanceChanges[transaction.accountId]) {
+        accountBalanceChanges[transaction.accountId] =
+          new Prisma.Decimal(0);
+      }
+
+      accountBalanceChanges[transaction.accountId] =
+        accountBalanceChanges[transaction.accountId].add(change);
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.transaction.deleteMany({
+        where: {
+          id: {
+            in: transactions.map((transaction) => transaction.id),
+          },
+          userId: user.id,
+        },
+      });
+
+      for (const [accountId, balanceChange] of Object.entries(
+        accountBalanceChanges
+      )) {
+        await tx.account.updateMany({
+          where: {
+            id: accountId,
+            userId: user.id,
+          },
+          data: {
+            balance: {
+              increment: balanceChange,
+            },
+          },
+        });
+      }
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/account/[id]");
+
+    return {
+      success: true,
+      deletedCount: transactions.length,
+    };
+  } catch (error) {
+    console.error("bulkDeleteTransactions error:", error);
+
+    return {
+      success: false,
+      error: "Failed to delete transactions",
+    };
   }
 }

@@ -4,83 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   FINOVA — RETRO FINTECH DESIGN SYSTEM
+============================================================ */
+
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -100,55 +31,829 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-finova-cream: #faf8f2;
+  --color-finova-paper: #fffdf8;
+  --color-finova-ink: #172033;
+  --color-finova-green: #18a66a;
+  --color-finova-purple: #7757e8;
+  --color-finova-pink: #e34aa8;
+  --color-finova-yellow: #f5d76e;
+
+  --radius-sm: 0.35rem;
+  --radius-md: 0.55rem;
+  --radius-lg: 0.8rem;
+  --radius-xl: 1rem;
 }
+
+/* ============================================================
+   LIGHT THEME
+============================================================ */
+
+:root {
+  --background: #faf8f2;
+  --foreground: #172033;
+
+  --card: #fffdf8;
+  --card-foreground: #172033;
+
+  --popover: #fffdf8;
+  --popover-foreground: #172033;
+
+  --primary: #172033;
+  --primary-foreground: #ffffff;
+
+  --secondary: #edf0eb;
+  --secondary-foreground: #172033;
+
+  --muted: #eeeae1;
+  --muted-foreground: #697080;
+
+  --accent: #e8f5ee;
+  --accent-foreground: #13784e;
+
+  --destructive: #dc3e3e;
+  --destructive-foreground: #ffffff;
+
+  --border: #172033;
+  --input: #d9d5cc;
+  --ring: #18a66a;
+
+  --chart-1: #18a66a;
+  --chart-2: #7757e8;
+  --chart-3: #e34aa8;
+  --chart-4: #f5d76e;
+  --chart-5: #4d8de8;
+
+  --radius: 0.55rem;
+
+  --sidebar: #fffdf8;
+  --sidebar-foreground: #172033;
+  --sidebar-primary: #172033;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #edf0eb;
+  --sidebar-accent-foreground: #172033;
+  --sidebar-border: #d9d5cc;
+  --sidebar-ring: #18a66a;
+}
+
+/* ============================================================
+   DARK THEME
+============================================================ */
+
+.dark {
+  --background: #111722;
+  --foreground: #f8f5ed;
+
+  --card: #18202d;
+  --card-foreground: #f8f5ed;
+
+  --popover: #18202d;
+  --popover-foreground: #f8f5ed;
+
+  --primary: #f8f5ed;
+  --primary-foreground: #111722;
+
+  --secondary: #222b39;
+  --secondary-foreground: #f8f5ed;
+
+  --muted: #222b39;
+  --muted-foreground: #a9afbb;
+
+  --accent: #173b2c;
+  --accent-foreground: #65d89f;
+
+  --destructive: #ef6262;
+  --destructive-foreground: #ffffff;
+
+  --border: #f8f5ed;
+  --input: #354052;
+  --ring: #65d89f;
+
+  --chart-1: #65d89f;
+  --chart-2: #9a82f0;
+  --chart-3: #ed72bd;
+  --chart-4: #f5d76e;
+  --chart-5: #69a2ed;
+
+  --sidebar: #151c28;
+  --sidebar-foreground: #f8f5ed;
+  --sidebar-primary: #65d89f;
+  --sidebar-primary-foreground: #111722;
+  --sidebar-accent: #222b39;
+  --sidebar-accent-foreground: #f8f5ed;
+  --sidebar-border: #354052;
+  --sidebar-ring: #65d89f;
+}
+
+/* ============================================================
+   BASE
+============================================================ */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
+
+    background-color: #faf8f2;
+
+    font-family:
+      var(--font-geist-sans),
+      Arial,
+      Helvetica,
+      sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: #172033;
+    color: #ffffff;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* ============================================================
+   RETRO PAPER BACKGROUND
+============================================================ */
+
+.finova-paper {
+  position: relative;
+  background-color: #faf8f2;
+
+  background-image:
+    radial-gradient(
+      rgba(23, 32, 51, 0.08) 0.7px,
+      transparent 0.7px
+    );
+
+  background-size: 9px 9px;
+}
+
+/* Very subtle paper noise */
+
+.finova-paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      rgba(255, 255, 255, 0.18),
+      rgba(255, 255, 255, 0.18)
+    );
+
+  opacity: 0.35;
+}
+
+/* ============================================================
+   RETRO CARDS
+============================================================ */
+
+.retro-card {
+  border: 2px solid #172033;
+  background: #fffdf8;
+
+  box-shadow:
+    6px 6px 0 #172033;
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.retro-card:hover {
+  transform: translate(-2px, -2px);
+
+  box-shadow:
+    9px 9px 0 #172033;
+}
+
+/* ============================================================
+   RETRO BUTTONS
+============================================================ */
+
+.retro-button {
+  border: 2px solid #172033;
+
+  background: #172033;
+  color: #ffffff;
+
+  box-shadow:
+    4px 4px 0 #18a66a;
+
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.retro-button:hover {
+  transform: translate(-1px, -1px);
+
+  box-shadow:
+    6px 6px 0 #18a66a;
+}
+
+.retro-button:active {
+  transform: translate(3px, 3px);
+
+  box-shadow:
+    1px 1px 0 #18a66a;
+}
+
+.retro-button-outline {
+  border: 2px solid #172033;
+
+  background: #fffdf8;
+  color: #172033;
+
+  box-shadow:
+    4px 4px 0 #172033;
+
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background 120ms ease;
+}
+
+.retro-button-outline:hover {
+  background: #edf0eb;
+
+  transform: translate(-1px, -1px);
+
+  box-shadow:
+    6px 6px 0 #172033;
+}
+
+.retro-button-outline:active {
+  transform: translate(3px, 3px);
+
+  box-shadow:
+    1px 1px 0 #172033;
+}
+
+/* ============================================================
+   RETRO BADGE / STICKER
+============================================================ */
+
+.retro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  border: 1.5px solid #172033;
+
+  background: #fffdf8;
+
+  padding: 7px 13px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  box-shadow:
+    3px 3px 0 #18a66a;
+}
+
+.retro-badge-dot {
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: #18a66a;
+
+  box-shadow:
+    0 0 0 2px #d7f2e4;
+}
+
+/* ============================================================
+   RETRO STICKERS
+============================================================ */
+
+.retro-sticker {
+  border: 2px solid #172033;
+
+  background: #cfc5ff;
+
+  padding: 12px 16px;
+
+  box-shadow:
+    5px 5px 0 #172033;
+
+  transform: rotate(-2deg);
+}
+
+.retro-sticker-yellow {
+  background: #f5d76e;
+}
+
+.retro-sticker-green {
+  background: #9de6c5;
+}
+
+.retro-sticker-pink {
+  background: #f5b5dc;
+}
+
+/* ============================================================
+   GRADIENT TEXT
+============================================================ */
+
+.finova-gradient-text {
+  background: linear-gradient(
+    100deg,
+    #4b75ed 0%,
+    #8b4bea 45%,
+    #e34aa8 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent;
+}
+
+/* Green gradient for second heading */
+
+.finova-green-text {
+  background: linear-gradient(
+    100deg,
+    #159b65,
+    #20b879
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent;
+}
+
+/* ============================================================
+   PIXEL / RETRO HEADING
+============================================================ */
+
+.retro-heading {
+  font-weight: 900;
+
+  letter-spacing: -0.055em;
+
+  line-height: 0.92;
+
+  text-wrap: balance;
+}
+
+/* ============================================================
+   DECORATIVE PIXEL GRID
+============================================================ */
+
+.pixel-grid {
+  background-image:
+    linear-gradient(
+      rgba(23, 32, 51, 0.1) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(23, 32, 51, 0.1) 1px,
+      transparent 1px
+    );
+
+  background-size: 12px 12px;
+}
+
+/* ============================================================
+   DECORATIVE DOTS
+============================================================ */
+
+.dot-pattern {
+  background-image:
+    radial-gradient(
+      #172033 1px,
+      transparent 1px
+    );
+
+  background-size: 10px 10px;
+}
+
+/* ============================================================
+   DASHBOARD WINDOW
+============================================================ */
+
+.retro-window {
+  border: 2px solid #172033;
+
+  background: #fffdf8;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  box-shadow:
+    8px 8px 0 #172033;
+}
+
+.retro-window-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 12px 16px;
+
+  border-bottom: 2px solid #172033;
+
+  background: #f3efe6;
+}
+
+.retro-window-dot {
+  width: 11px;
+  height: 11px;
+
+  border: 1.5px solid #172033;
+
+  border-radius: 50%;
+}
+
+/* ============================================================
+   FINANCIAL VALUES
+============================================================ */
+
+.money-positive {
+  color: #159b65;
+  font-weight: 800;
+}
+
+.money-negative {
+  color: #e04444;
+  font-weight: 800;
+}
+
+/* ============================================================
+   TRANSACTION ROW
+============================================================ */
+
+.transaction-row {
+  display: flex;
+  align-items: center;
+
+  padding: 14px 0;
+
+  border-bottom: 1px dashed #d5d0c6;
+}
+
+.transaction-row:last-child {
+  border-bottom: 0;
+}
+
+/* ============================================================
+   HOVER LIFT
+============================================================ */
+
+.hover-lift {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+/* ============================================================
+   FLOATING DECORATION
+============================================================ */
+
+.float-slow {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ============================================================
+   GRADIENT ANIMATION
+============================================================ */
+
 @keyframes gradientMove {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
 }
 
-/* Add this class */
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradientMove 3s ease infinite;
 }
 
+/* ============================================================
+   FADE / SLIDE ANIMATION
+============================================================ */
 
+@keyframes finovaFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
 
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
+.finova-fade-up {
+  animation: finovaFadeUp 600ms ease both;
+}
 
+/* ============================================================
+   RESPONSIVE
+============================================================ */
 
+@media (max-width: 768px) {
+  .retro-card {
+    box-shadow:
+      4px 4px 0 #172033;
+  }
 
+  .retro-card:hover {
+    transform: none;
 
+    box-shadow:
+      4px 4px 0 #172033;
+  }
+
+  .retro-window {
+    box-shadow:
+      5px 5px 0 #172033;
+  }
+
+  .retro-heading {
+    letter-spacing: -0.045em;
+  }
+}
+
+@media (max-width: 480px) {
+  .retro-window {
+    border-radius: 12px;
+  }
+
+  .retro-window-bar {
+    padding: 9px 12px;
+  }
+
+  .retro-sticker {
+    padding: 9px 12px;
+    box-shadow:
+      3px 3px 0 #172033;
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY
+============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* ============================================================
+   FINOVA DASHBOARD
+============================================================ */
+
+.finova-dashboard {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(216, 246, 232, 0.45), transparent 25%),
+    radial-gradient(circle at 85% 70%, rgba(217, 208, 255, 0.35), transparent 25%),
+    #f7f5ef;
+}
+
+.dashboard-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(1px);
+  pointer-events: none;
+  animation: dashboardFloat 7s ease-in-out infinite;
+}
+
+.dashboard-orb-one {
+  width: 180px;
+  height: 180px;
+  left: -80px;
+  top: 250px;
+  background: rgba(24, 166, 106, 0.08);
+}
+
+.dashboard-orb-two {
+  width: 220px;
+  height: 220px;
+  right: -100px;
+  top: 600px;
+  background: rgba(217, 208, 255, 0.25);
+  animation-delay: -3s;
+}
+
+@keyframes dashboardFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -18px, 0);
+  }
+}
+
+.retro-status-card {
+  border: 2px solid #172033;
+  background: #fffdf8;
+  padding: 12px 16px;
+  box-shadow: 4px 4px 0 #172033;
+}
+
+.retro-status-icon {
+  display: flex;
+  height: 38px;
+  width: 38px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #172033;
+  background: #d8f6e8;
+}
+
+.retro-section-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: #697080;
+}
+
+.retro-section-label span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 27px;
+  height: 24px;
+  border: 2px solid #172033;
+  background: #f5d76e;
+  color: #172033;
+  box-shadow: 2px 2px 0 #172033;
+}
+
+.retro-dashboard-panel {
+  border: 2px solid #172033;
+  background: #fffdf8;
+  box-shadow: 6px 6px 0 #172033;
+}
+
+.retro-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.retro-loading span {
+  width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  background: #18a66a;
+  animation: loadingPulse 1s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.dashboard-account-wrap {
+  position: relative;
+  transition:
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+.dashboard-account-wrap:hover {
+  transform: translateY(-4px);
+}
+
+.dashboard-account-wrap::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  right: -5px;
+  bottom: -5px;
+  border: 2px solid #172033;
+  z-index: 0;
+}
+
+.dashboard-account-wrap > * {
+  position: relative;
+  z-index: 1;
+}
+
+.account-green::before {
+  background: #bcefd9;
+}
+
+.account-purple::before {
+  background: #d9d0ff;
+}
+
+.account-yellow::before {
+  background: #fff0b9;
+}
+
+.retro-motivation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 2px solid #172033;
+  background: #172033;
+  padding: 24px;
+  box-shadow: 7px 7px 0 #18a66a;
+}
+
+@media (max-width: 640px) {
+  .retro-dashboard-panel {
+    box-shadow: 4px 4px 0 #172033;
+  }
+
+  .retro-motivation {
+    padding: 20px;
+  }
+}
+.retro-account-switch button {
+  border: 2px solid #172033 !important;
+  box-shadow: 2px 2px 0 #172033;
+}
+
+.retro-account-switch button[data-state="checked"] {
+  background: #18a66a !important;
+}
+
+.retro-account-switch button[data-state="unchecked"] {
+  background: #e5e1d8 !important;
+}
+
+.retro-account-switch span {
+  background: #fffdf8 !important;
+}

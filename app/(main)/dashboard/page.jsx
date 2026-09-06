@@ -1,78 +1,74 @@
-export const dynamic = 'force-dynamic';
-
-import React from 'react';
+export const dynamic = "force-dynamic";
 import { Suspense } from "react";
-import {CreateAccountDrawer} from "@/components/ui/create-account-drawer";
-import {Card,CardContent} from "@/components/ui/card"
 import { Plus } from "lucide-react";
-import {getUserAccounts} from "@/actions/dashboard";
-import AccountCard from "./_components/account-card";
+
+import { CreateAccountDrawer } from "@/components/ui/create-account-drawer";
+import { Card, CardContent } from "@/components/ui/card";
+
+import { getUserAccounts, getDashboardData } from "@/actions/dashboard";
 import { getCurrentBudget } from "@/actions/budget";
+
+import AccountCard from "./_components/account-card";
 import { BudgetProgress } from "./_components/budget-progress";
-import { getDashboardData } from "@/actions/dashboard";
 import { DashboardOverview } from "./_components/transaction-overview";
-export async function DashboardPage() {
-  const [accounts, transactions] = await Promise.all([
+
+export default async function DashboardPage() {
+  const [accountsResult, transactionsResult] = await Promise.all([
     getUserAccounts(),
     getDashboardData(),
   ]);
 
+  const accounts = accountsResult || [];
+  const transactions = transactionsResult || [];
 
+  const defaultAccount = accounts.find(
+    (account) => account.isDefault
+  );
 
-  const defaultAccount = accounts?.find((account) => account.isDefault);
   let budgetData = null;
-  if(defaultAccount){
+
+  if (defaultAccount) {
     budgetData = await getCurrentBudget(defaultAccount.id);
   }
- 
+
   return (
     <div className="px-5">
-     {/*Budget Progress*/}
+      {/* Budget Progress */}
+      {defaultAccount && (
+        <BudgetProgress
+          initialBudget={budgetData?.budget}
+          currentExpenses={budgetData?.currentExpenses || 0}
+        />
+      )}
 
-{defaultAccount && (
-  <BudgetProgress 
-  initialBudget={budgetData?.budget}
-  currentExpenses={budgetData?.currentExpenses || 0}
-  />
-)}
+      {/* Dashboard Overview */}
+      <Suspense fallback={<div>Loading Overview...</div>}>
+        <DashboardOverview
+          accounts={accounts}
+          transactions={transactions}
+        />
+      </Suspense>
 
-     {/* Dashboard Overview */}
-     <Suspense fallback={"Loading Overview..."}>
-     <DashboardOverview
-   accounts={accounts}
-   transactions={transactions || []}
- />
-     </Suspense>
-     
-     
-     
-     
-     {/*Accounts Grid*/}
-     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <CreateAccountDrawer>
-        <Card className="hover:shadow-md transition-shadow cursor-pointer border-dashed">
-          <CardContent className="flex flex-col items-center jusyify-center text-muted-foreground h-full pt-5">
-<Plus className="h-10 w-10 mb-2"/>
-<p className="text-sm font-medium"> Add New Account</p>
-          </CardContent>
-        </Card>
-      </CreateAccountDrawer>
-      {accounts.length>0 && accounts?.map((account)=>{
-        return <AccountCard key={account.id} account={account}/>;
-      })}
-     </div>
-    
+      {/* Accounts Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <CreateAccountDrawer>
+          <Card className="cursor-pointer border-dashed transition-shadow hover:shadow-md">
+            <CardContent className="flex h-full flex-col items-center justify-center pt-5 text-muted-foreground">
+              <Plus className="mb-2 h-10 w-10" />
+              <p className="text-sm font-medium">
+                Add New Account
+              </p>
+            </CardContent>
+          </Card>
+        </CreateAccountDrawer>
+
+        {accounts.map((account) => (
+          <AccountCard
+            key={account.id}
+            account={account}
+          />
+        ))}
+      </div>
     </div>
-  )
+  );
 }
-
-export default DashboardPage;
-
-
-
-
-
-
-
-
-

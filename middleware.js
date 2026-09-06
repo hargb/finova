@@ -1,94 +1,57 @@
-/*import arcjet, { createMiddleware, detectBot, shield } from "@arcjet/next";
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import arcjet, {
+  createMiddleware,
+  detectBot,
+  shield,
+} from "@arcjet/next";
 
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/account(.*)",
-  "/transaction(.*)",
-]);
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// Create Arcjet middleware
+// -----------------------------
+// Arcjet Security Middleware
+// -----------------------------
+
 const aj = arcjet({
   key: process.env.ARCJET_KEY,
-  // characteristics: ["userId"], // Track based on Clerk userId
+
   rules: [
-    // Shield protection for content and security
+    // Protect against common application attacks
     shield({
       mode: "LIVE",
     }),
+
+    // Bot protection
     detectBot({
-      mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
+      mode: "LIVE",
       allow: [
-        "CATEGORY:SEARCH_ENGINE", // Google, Bing, etc
-        "GO_HTTP", // For Inngest
-        // See the full list at https://arcjet.com/bot-list
+        "CATEGORY:SEARCH_ENGINE",
+        "GO_HTTP",
       ],
     }),
   ],
 });
 
-// Create base Clerk middleware
-const clerk = clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
+// -----------------------------
+// Clerk Authentication Middleware
+// -----------------------------
 
-  if (!userId && isProtectedRoute(req)) {
-    const { redirectToSignIn } = await auth();
-    return redirectToSignIn();
-  }
+const clerk = clerkMiddleware();
 
-  return NextResponse.next();
-});
+// -----------------------------
+// Combine Arcjet + Clerk
+// -----------------------------
 
-// Chain middlewares - ArcJet runs first, then Clerk
 export default createMiddleware(aj, clerk);
 
+// -----------------------------
+// Next.js Middleware Matcher
+// -----------------------------
+
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
+    // Run middleware on application routes
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+
     // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
-};*/
-/*import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/account(.*)",
-  "/transaction(.*)",
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  const { userId, redirectToSignIn } = await auth();
-
-  if (!userId && isProtectedRoute(req)) {
-    return redirectToSignIn();
-  }
-});
-
-export const config = {
-  matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|png|gif|svg|ico|ttf|woff2?)).*)",
-    "/(api|trpc)(.*)",
-  ],
-};*/
-/*import { clerkMiddleware } from "@clerk/nextjs/server";
-
-export default clerkMiddleware();
-
-export const config = {
-  matcher: [
-    "/((?!_next|.*\\..*).*)",
-    "/(api|trpc)(.*)",
-  ],
-};*/import { clerkMiddleware } from "@clerk/nextjs/server";
-
-export default clerkMiddleware();
-
-export const config = {
-  matcher: [
-    "/((?!_next|.*\\..*).*)",
     "/(api|trpc)(.*)",
   ],
 };

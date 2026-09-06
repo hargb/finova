@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -12,44 +14,67 @@ const useFetch = (cb) => {
 
     try {
       const response = await cb(...args);
-      console.log("🔍 API Response:", response);
 
       if (!response) {
-        throw new Error("API returned undefined or null.");
+        throw new Error("No response received from the server.");
       }
 
-      // Safer way to parse response
-      let jsonData;
-      if (response.ok !== undefined) {
+      // Server Actions normally return plain objects.
+      // Keep this fallback for API Response objects.
+      let result = response;
+
+      if (response instanceof Response) {
         try {
-          jsonData = await response.json();
-        } catch (parseError) {
-          console.error("❌ JSON Parsing Failed:", parseError);
-          jsonData = response;
+          result = await response.json();
+        } catch {
+          throw new Error("Invalid response received from the server.");
         }
-        
-      } else {
-        jsonData = response;
       }
 
-      console.log("✅ Parsed Data:", jsonData);
-
-      if (!jsonData || jsonData.success === false) {
-        throw new Error(jsonData?.message || "Something went wrong");
+      if (!result) {
+        throw new Error("Invalid response received from the server.");
       }
 
-      setData(jsonData);
+      if (result.success === false) {
+        throw new Error(
+          result.error ||
+            result.message ||
+            "Something went wrong. Please try again."
+        );
+      }
+
+      setData(result);
       setError(null);
-      return jsonData;
+
+      return result;
     } catch (error) {
-      setError(error);
-      toast.error(error.message || "Something went wrong");
+      const normalizedError =
+        error instanceof Error
+          ? error
+          : new Error("Something went wrong. Please try again.");
+
+      console.error("useFetch error:", normalizedError);
+
+      setError(normalizedError);
+
+      toast.error(
+        normalizedError.message || "Something went wrong. Please try again."
+      );
+
+      // Important: allow the caller to handle the failure too.
+      throw normalizedError;
     } finally {
       setLoading(false);
     }
   };
 
-  return { data, loading, error, fn, setData };
+  return {
+    data,
+    loading,
+    error,
+    fn,
+    setData,
+  };
 };
 
 export default useFetch;

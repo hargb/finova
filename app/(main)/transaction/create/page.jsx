@@ -1,38 +1,41 @@
-export const dynamic = "force-dynamic";
 import { getUserAccounts } from "@/actions/dashboard";
-import { defaultCategories } from "@/data/categories";
-import React from "react";
-import { AddTransactionForm } from "../_components/transaction-form";
 import { getTransaction } from "@/actions/transaction";
+import { defaultCategories } from "@/data/categories";
+import { AddTransactionForm } from "../_components/transaction-form";
 
 export default async function AddTransactionPage({ searchParams }) {
+  const resolvedSearchParams = await searchParams;
+  const editId = resolvedSearchParams?.edit;
+
   let accounts = [];
   let initialData = null;
-  
+
   try {
-    accounts = await getUserAccounts();
+    accounts = (await getUserAccounts()) ?? [];
   } catch (error) {
-    console.error("❌ Error fetching user accounts:", error);
+    console.error("Error fetching user accounts:", error);
   }
 
-  const editId = searchParams?.edit;
   if (editId) {
     try {
       initialData = await getTransaction(editId);
     } catch (error) {
-      console.error("❌ Error fetching transaction:", error);
+      console.error("Error fetching transaction:", error);
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-5 md:px-8">
-      <div className="flex justify-center  md:justify-normal mb-8">
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">{editId ? "Edit" : "Add"} Transaction</h1>
+    <div className="mx-auto max-w-2xl px-5 md:px-8">
+      <div className="mb-8 flex justify-center md:justify-start">
+        <h1 className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-4xl font-bold text-transparent">
+          {editId ? "Edit" : "Add"} Transaction
+        </h1>
       </div>
+
       <AddTransactionForm
         accounts={accounts}
         categories={defaultCategories}
-        editMode={!!editId}
+        editMode={Boolean(editId)}
         initialData={initialData}
       />
     </div>

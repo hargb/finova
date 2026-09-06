@@ -1,109 +1,438 @@
 "use server";
 
-import { db } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 import { subDays } from "date-fns";
 
-const ACCOUNT_ID = "1f208c5b-4fed-4a78-9c37-30d335aa4441";
-const USER_ID = "125f1d1a-5f3c-4d72-b971-e2d16e60ac25";
+import { db } from "@/lib/prisma";
 
-// Categories with their typical amount ranges
+/* ============================================================
+   CONFIG
+============================================================ */
+
+const DAYS_TO_SEED = 90;
+const MIN_TRANSACTIONS_PER_DAY = 1;
+const MAX_TRANSACTIONS_PER_DAY = 3;
+
 const CATEGORIES = {
   INCOME: [
-    { name: "salary", range: [5000, 8000] },
-    { name: "freelance", range: [1000, 3000] },
-    { name: "investments", range: [500, 2000] },
-    { name: "other-income", range: [100, 1000] },
+    {
+      name: "salary",
+      range: [5000, 8000],
+    },
+    {
+      name: "freelance",
+      range: [1000, 3000],
+    },
+    {
+      name: "investments",
+      range: [500, 2000],
+    },
+    {
+      name: "other-income",
+      range: [100, 1000],
+    },
   ],
+
   EXPENSE: [
-    { name: "housing", range: [1000, 2000] },
-    { name: "transportation", range: [100, 500] },
-    { name: "groceries", range: [200, 600] },
-    { name: "utilities", range: [100, 300] },
-    { name: "entertainment", range: [50, 200] },
-    { name: "food", range: [50, 150] },
-    { name: "shopping", range: [100, 500] },
-    { name: "healthcare", range: [100, 1000] },
-    { name: "education", range: [200, 1000] },
-    { name: "travel", range: [500, 2000] },
+    {
+      name: "housing",
+      range: [1000, 2000],
+    },
+    {
+      name: "transportation",
+      range: [100, 500],
+    },
+    {
+      name: "groceries",
+      range: [200, 600],
+    },
+    {
+      name: "utilities",
+      range: [100, 300],
+    },
+    {
+      name: "entertainment",
+      range: [50, 200],
+    },
+    {
+      name: "food",
+      range: [50, 150],
+    },
+    {
+      name: "shopping",
+      range: [100, 500],
+    },
+    {
+      name: "healthcare",
+      range: [100, 1000],
+    },
+    {
+      name: "education",
+      range: [200, 1000],
+    },
+    {
+      name: "travel",
+      range: [500, 2000],
+    },
   ],
 };
 
-// Helper to generate random amount within a range
+/* ============================================================
+   HELPERS
+============================================================ */
+
 function getRandomAmount(min, max) {
-  return Number((Math.random() * (max - min) + min).toFixed(2));
+  return new Prisma.Decimal(
+    (Math.random() * (max - min) + min).toFixed(2)
+  );
 }
 
-// Helper to get random category with amount
 function getRandomCategory(type) {
   const categories = CATEGORIES[type];
-  const category = categories[Math.floor(Math.random() * categories.length)];
-  const amount = getRandomAmount(category.range[0], category.range[1]);
-  return { category: category.name, amount };
+
+  if (!categories?.length) {
+    throw new Error(
+      `No categories configured for ${type}`
+    );
+  }
+
+  const category =
+    categories[
+      Math.floor(
+        Math.random() * categories.length
+      )
+    ];
+
+  return {
+    category: category.name,
+    amount: getRandomAmount(
+      category.range[0],
+      category.range[1]
+    ),
+  };
 }
+
+function getRandomTransactionsPerDay() {
+  return (
+    Math.floor(
+      Math.random() *
+        (
+          MAX_TRANSACTIONS_PER_DAY -
+          MIN_TRANSACTIONS_PER_DAY +
+          1
+        )
+    ) + MIN_TRANSACTIONS_PER_DAY
+  );
+}
+
+/* ============================================================
+   SEED TRANSACTIONS
+============================================================ */
 
 export async function seedTransactions() {
   try {
-    // Generate 90 days of transactions
+    /**
+     * Never expose seed functionality in production.
+     */
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "Transaction seeding is disabled in production."
+      );
+    }
+
+    /* --------------------------------------------------------
+       AUTHENTICATION
+    -------------------------------------------------------- */
+
+    const { userId: clerkUserId } =
+      await auth();
+
+    if (!clerkUserId) {
+      throw new Error("Unauthorized");
+    }
+
+    const user =
+      await db.user.findUnique({
+        where: {
+          ClerkUserid: clerkUserId,
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    /* --------------------------------------------------------
+       GENERATE TRANSACTIONS
+    -------------------------------------------------------- */
+
     const transactions = [];
-    let totalBalance = 0;
 
-    for (let i = 90; i >= 0; i--) {
-      const date = subDays(new Date(), i);
+    for (
+      let daysAgo = DAYS_TO_SEED;
+      daysAgo >= 0;
+      daysAgo--
+    ) {
+      const date = subDays(
+        new Date(),
+        daysAgo
+      );
 
-      // Generate 1-3 transactions per day
-      const transactionsPerDay = Math.floor(Math.random() * 3) + 1;
+      const transactionsPerDay =
+        getRandomTransactionsPerDay();
 
-      for (let j = 0; j < transactionsPerDay; j++) {
-        // 40% chance of income, 60% chance of expense
-        const type = Math.random() < 0.4 ? "INCOME" : "EXPENSE";
-        const { category, amount } = getRandomCategory(type);
+      for (
+        let index = 0;
+        index < transactionsPerDay;
+        index++
+      ) {
+        const type =
+          Math.random() < 0.4
+            ? "INCOME"
+            : "EXPENSE";
 
-        const transaction = {
-          id: crypto.randomUUID(),
-          type,
-          amount,
-          description: `${
-            type === "INCOME" ? "Received" : "Paid for"
-          } ${category}`,
-          date,
+        const {
           category,
-          status: "COMPLETED",
-          userId: USER_ID,
-          accountId: ACCOUNT_ID,
-          createdAt: date,
-          updatedAt: date,
-        };
+          amount,
+        } = getRandomCategory(type);
 
-        totalBalance += type === "INCOME" ? amount : -amount;
-        transactions.push(transaction);
+        transactions.push({
+          type,
+
+          amount,
+
+          description:
+            type === "INCOME"
+              ? `Received ${category}`
+              : `Paid for ${category}`,
+
+          date,
+
+          category,
+
+          receiptUrl: null,
+
+          isRecurring: false,
+
+          recurringInterval: null,
+
+          nextRecurringDate: null,
+
+          lastProcessed: null,
+
+          status: "COMPLETED",
+
+          userId: user.id,
+
+          createdAt: date,
+
+          updatedAt: date,
+        });
       }
     }
 
-    // Insert transactions in batches and update account balance
-    await db.$transaction(async (tx) => {
-      // Clear existing transactions
-      await tx.transaction.deleteMany({
-        where: { accountId: ACCOUNT_ID },
-      });
+    if (!transactions.length) {
+      throw new Error(
+        "No demo transactions were generated."
+      );
+    }
 
-      // Insert new transactions
-      await tx.transaction.createMany({
-        data: transactions,
-      });
+    /* --------------------------------------------------------
+       ATOMIC DATABASE OPERATION
+    -------------------------------------------------------- */
 
-      // Update account balance
-      await tx.account.update({
-        where: { id: ACCOUNT_ID },
-        data: { balance: totalBalance },
-      });
-    });
+    const result =
+      await db.$transaction(
+        async (tx) => {
+          /**
+           * Find default account.
+           */
+          let account =
+            await tx.account.findFirst({
+              where: {
+                userId: user.id,
+                isDefault: true,
+              },
+
+              orderBy: {
+                createdAt: "asc",
+              },
+            });
+
+          /**
+           * If no default account exists,
+           * use the oldest account.
+           */
+          if (!account) {
+            account =
+              await tx.account.findFirst({
+                where: {
+                  userId: user.id,
+                },
+
+                orderBy: {
+                  createdAt: "asc",
+                },
+              });
+          }
+
+          /**
+           * Create demo account if user has
+           * no accounts.
+           */
+          if (!account) {
+            account =
+              await tx.account.create({
+                data: {
+                  name: "Demo Account",
+
+                  type: "CURRENT",
+
+                  balance:
+                    new Prisma.Decimal(0),
+
+                  isDefault: true,
+
+                  userId: user.id,
+                },
+              });
+          }
+
+          /**
+           * Attach every generated transaction
+           * to the selected account.
+           */
+          const transactionsWithAccount =
+            transactions.map(
+              (transaction) => ({
+                ...transaction,
+
+                accountId:
+                  account.id,
+              })
+            );
+
+          /**
+           * Remove existing transactions belonging
+           * to this user + account.
+           */
+          const deleted =
+            await tx.transaction.deleteMany({
+              where: {
+                userId: user.id,
+
+                accountId:
+                  account.id,
+              },
+            });
+
+          /**
+           * Calculate resulting balance using
+           * Decimal arithmetic.
+           */
+          let totalBalance =
+            new Prisma.Decimal(0);
+
+          for (
+            const transaction of
+            transactionsWithAccount
+          ) {
+            if (
+              transaction.type ===
+              "INCOME"
+            ) {
+              totalBalance =
+                totalBalance.add(
+                  transaction.amount
+                );
+            } else {
+              totalBalance =
+                totalBalance.sub(
+                  transaction.amount
+                );
+            }
+          }
+
+          /**
+           * Insert generated transactions.
+           */
+          await tx.transaction.createMany({
+            data:
+              transactionsWithAccount,
+          });
+
+          /**
+           * Set balance exactly to the
+           * generated transaction balance.
+           */
+          const updatedAccount =
+            await tx.account.update({
+              where: {
+                id: account.id,
+              },
+
+              data: {
+                balance:
+                  totalBalance,
+              },
+            });
+
+          return {
+            accountId:
+              updatedAccount.id,
+
+            accountName:
+              updatedAccount.name,
+
+            deletedCount:
+              deleted.count,
+
+            createdCount:
+              transactions.length,
+
+            balance:
+              totalBalance.toNumber(),
+          };
+        }
+      );
+
+    /* --------------------------------------------------------
+       CACHE INVALIDATION
+    -------------------------------------------------------- */
+
+    revalidatePath("/dashboard");
+
+    revalidatePath(
+      `/account/${result.accountId}`
+    );
 
     return {
       success: true,
-      message: `Created ${transactions.length} transactions`,
+
+      message:
+        `Created ${result.createdCount} demo transactions.`,
+
+      data: result,
     };
   } catch (error) {
-    console.error("Error seeding transactions:", error);
-    return { success: false, error: error.message };
+    console.error(
+      "Error seeding transactions:",
+      error
+    );
+
+    return {
+      success: false,
+
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to seed transactions",
+    };
   }
 }
