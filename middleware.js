@@ -1,34 +1,6 @@
-import arcjet, {
-  createMiddleware,
-  detectBot,
-  shield,
-} from "@arcjet/next";
-
 import { clerkMiddleware } from "@clerk/nextjs/server";
 
-const aj = arcjet({
-  key: process.env.ARCJET_KEY,
-
-  rules: [
-    shield({
-      mode: "LIVE",
-    }),
-
-    detectBot({
-      mode: "LIVE",
-      allow: [
-        "CATEGORY:SEARCH_ENGINE",
-        "GO_HTTP",
-      ],
-    }),
-  ],
-});
-
-const arcjetMiddleware = createMiddleware(aj);
-
-export default clerkMiddleware(async (_auth, request) => {
-  return arcjetMiddleware(request);
-});
+export default clerkMiddleware();
 
 export const config = {
   runtime: "nodejs",
