@@ -6,20 +6,12 @@ import arcjet, {
 
 import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// -----------------------------
-// Arcjet Security Middleware
-// -----------------------------
-
 const aj = arcjet({
   key: process.env.ARCJET_KEY,
-
   rules: [
-    // Protect against common application attacks
     shield({
       mode: "LIVE",
     }),
-
-    // Bot protection
     detectBot({
       mode: "LIVE",
       allow: [
@@ -30,28 +22,16 @@ const aj = arcjet({
   ],
 });
 
-// -----------------------------
-// Clerk Authentication Middleware
-// -----------------------------
+const arcjetMiddleware = createMiddleware(aj);
 
-const clerk = clerkMiddleware();
-
-// -----------------------------
-// Combine Arcjet + Clerk
-// -----------------------------
-
-export default createMiddleware(aj, clerk);
-
-// -----------------------------
-// Next.js Middleware Matcher
-// -----------------------------
+export default clerkMiddleware(async (_auth, req) => {
+  return arcjetMiddleware(req);
+});
 
 export const config = {
   matcher: [
-    // Run middleware on application routes
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-
-    // Always run for API routes
     "/(api|trpc)(.*)",
+    "/__clerk/(.*)",
   ],
 };
