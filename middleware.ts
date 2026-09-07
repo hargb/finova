@@ -1,14 +1,22 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextRequest } from "next/server";
 
-export default function middleware(request: NextRequest) {
-  console.log("MIDDLEWARE DIAGNOSTIC:", {
-    hasNextUrl: !!request.nextUrl,
-    url: request.url,
-    pathname: request.nextUrl?.pathname,
+const clerk = clerkMiddleware();
+
+export default async function middleware(request: Request, event: any) {
+  const nextRequest =
+    request instanceof NextRequest
+      ? request
+      : new NextRequest(request);
+
+  console.log("CLERK WRAPPER DIAGNOSTIC:", {
+    originalIsNextRequest: request instanceof NextRequest,
+    convertedHasNextUrl: !!nextRequest.nextUrl,
+    url: nextRequest.url,
+    pathname: nextRequest.nextUrl.pathname,
   });
 
-  return NextResponse.next();
+  return clerk(nextRequest, event);
 }
 
 export const config = {
