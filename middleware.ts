@@ -10,4 +10,5 @@ export const config = {
     "/(api|trpc)(.*)",
     "/__clerk/(.*)",
   ],
+  runtime: "nodejs",
 };
