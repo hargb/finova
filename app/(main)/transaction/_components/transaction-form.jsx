@@ -146,42 +146,189 @@ export function AddTransactionForm({
   };
 
   const handleScanComplete = (scannedData) => {
-    if (!scannedData) return;
+if (scannedData.category) {
+  const aiCategory = String(scannedData.category)
+    .trim()
+    .toLowerCase();
 
-    if (scannedData.amount != null) {
-      setValue("amount", String(scannedData.amount), {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
+  const categoryAliases = {
+    // Food
+    food: "food",
+    restaurant: "food",
+    restaurants: "food",
+    dining: "food",
+    cafe: "food",
+    coffee: "food",
 
-    if (scannedData.date) {
-      const scannedDate = new Date(scannedData.date);
+    // Groceries
+    grocery: "groceries",
+    groceries: "groceries",
+    supermarket: "groceries",
 
-      if (!Number.isNaN(scannedDate.getTime())) {
-        setValue("date", scannedDate, {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
-      }
-    }
+    // Shopping
+    shopping: "shopping",
+    "office supplies": "shopping",
+    electronics: "shopping",
+    clothing: "shopping",
 
-    if (scannedData.description) {
-      setValue("description", scannedData.description, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
+    // Transport
+    transport: "transportation",
+    transportation: "transportation",
+    fuel: "transportation",
+    petrol: "transportation",
+    gasoline: "transportation",
+    parking: "transportation",
 
-    if (scannedData.category) {
-      setValue("category", scannedData.category, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
+    // Housing
+    housing: "housing",
+    rent: "housing",
+    mortgage: "housing",
 
-    toast.success("Receipt scanned successfully");
+    // Utilities
+    utility: "utilities",
+    utilities: "utilities",
+    electricity: "utilities",
+    water: "utilities",
+    internet: "utilities",
+    phone: "utilities",
+    gas: "utilities",
+
+    // Entertainment
+    entertainment: "entertainment",
+    movies: "entertainment",
+    games: "entertainment",
+    streaming: "entertainment",
+
+    // Healthcare
+    healthcare: "healthcare",
+    medical: "healthcare",
+    medicine: "healthcare",
+    pharmacy: "healthcare",
+    hospital: "healthcare",
+
+    // Education
+    education: "education",
+    tuition: "education",
+    books: "education",
+    course: "education",
+    courses: "education",
+
+    // Personal
+    personal: "personal",
+    "personal care": "personal",
+    haircut: "personal",
+    gym: "personal",
+    beauty: "personal",
+
+    // Travel
+    travel: "travel",
+    hotel: "travel",
+    flight: "travel",
+
+    // Insurance
+    insurance: "insurance",
+
+    // Gifts
+    gift: "gifts",
+    gifts: "gifts",
+    donation: "gifts",
+    donations: "gifts",
+
+    // Bills
+    bills: "bills",
+    fees: "bills",
+    "bank fees": "bills",
+    "service charges": "bills",
   };
+
+  let normalizedCategory =
+    categoryAliases[aiCategory];
+
+  // Exact ID match
+  if (
+    !normalizedCategory &&
+    filteredCategories.some(
+      (item) => item.id === aiCategory
+    )
+  ) {
+    normalizedCategory = aiCategory;
+  }
+
+  // Exact category name match
+  if (!normalizedCategory) {
+    const matchedByName = filteredCategories.find(
+      (item) =>
+        item.name.toLowerCase() === aiCategory
+    );
+
+    if (matchedByName) {
+      normalizedCategory = matchedByName.id;
+    }
+  }
+
+  // Partial match
+  if (!normalizedCategory) {
+    const matchedCategory = filteredCategories.find(
+      (item) =>
+        aiCategory.includes(item.name.toLowerCase()) ||
+        item.name.toLowerCase().includes(aiCategory)
+    );
+
+    if (matchedCategory) {
+      normalizedCategory = matchedCategory.id;
+    }
+  }
+
+  // Final safe fallback
+  if (!normalizedCategory) {
+    normalizedCategory =
+      type === "INCOME"
+        ? "other-income"
+        : "other-expense";
+  }
+
+  // Make sure final value actually exists
+  const isValidCategory =
+    filteredCategories.some(
+      (item) => item.id === normalizedCategory
+    );
+
+  if (isValidCategory) {
+    setValue("category", normalizedCategory, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+
+
+
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     if (!transactionResult || transactionLoading) return;

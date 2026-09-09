@@ -649,10 +649,19 @@ export async function scanReceipt(file) {
 
     await checkArcjet(clerkUserId);
 
+    /*
+     * Use the configured Gemini receipt model.
+     *
+     * The fallback is intentionally a current model so that
+     * the scanner does not silently fall back to the retired
+     * gemini-1.5-flash model.
+     */
+    const modelName =
+      process.env.GEMINI_RECEIPT_MODEL ||
+      "gemini-3.6-flash";
+
     const model = genAI.getGenerativeModel({
-      model:
-        process.env.GEMINI_RECEIPT_MODEL ||
-        "gemini-1.5-flash",
+      model: modelName,
     });
 
     const arrayBuffer = await file.arrayBuffer();
@@ -686,15 +695,107 @@ Rules:
 - category should be a reasonable expense category
 `;
 
-    const result = await model.generateContent([
-      {
-        inlineData: {
-          data: base64String,
-          mimeType: file.type,
-        },
-      },
-      prompt,
-    ]);
+    /*
+     * Gemini can temporarily return 503 when the model
+     * is under heavy load. It can also return 429 when
+     * request limits are temporarily reached.
+     *
+     * Retry only temporary errors.
+     * Do NOT retry permanent errors such as invalid
+     * model, invalid request, invalid API key, etc.
+     */
+
+    const MAX_ATTEMPTS = 3;
+
+    let result = null;
+    let lastError = null;
+
+    for (
+      let attempt = 1;
+      attempt <= MAX_ATTEMPTS;
+      attempt++
+    ) {
+      try {
+        console.log(
+          `Gemini receipt scan attempt ${attempt}/${MAX_ATTEMPTS} using ${modelName}`
+        );
+
+        result = await model.generateContent([
+          {
+            inlineData: {
+              data: base64String,
+              mimeType: file.type,
+            },
+          },
+          prompt,
+        ]);
+
+        console.log(
+          `Gemini receipt scan succeeded on attempt ${attempt}`
+        );
+
+        break;
+      } catch (error) {
+        lastError = error;
+
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : String(error);
+
+        console.error(
+          `Gemini receipt scan attempt ${attempt}/${MAX_ATTEMPTS} failed:`,
+          errorMessage
+        );
+
+        const isTemporaryError =
+          errorMessage.includes("503") ||
+          errorMessage.includes("Service Unavailable") ||
+          errorMessage.includes("high demand") ||
+          errorMessage.includes("429") ||
+          errorMessage.includes("Too Many Requests");
+
+        /*
+         * Permanent error:
+         * stop immediately instead of wasting requests.
+         */
+        if (
+          !isTemporaryError ||
+          attempt === MAX_ATTEMPTS
+        ) {
+          throw error;
+        }
+
+        /*
+         * Exponential backoff:
+         *
+         * Attempt 1 fails -> wait 2 seconds
+         * Attempt 2 fails -> wait 4 seconds
+         * Attempt 3 fails -> stop
+         */
+        const delay = Math.min(
+          2000 * 2 ** (attempt - 1),
+          8000
+        );
+
+        console.log(
+          `Retrying Gemini receipt scan in ${delay}ms...`
+        );
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, delay)
+        );
+      }
+    }
+
+    if (!result) {
+      throw (
+        lastError ||
+        new Error(
+          "Gemini failed to process receipt"
+        )
+      );
+    }
 
     const text = result.response
       .text()

@@ -1,6 +1,5 @@
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "sonner";
 
 import "./globals.css";
 import Header from "@/components/ui/header";
@@ -25,12 +24,6 @@ export default function RootLayout({ children }) {
           <main className="min-h-screen">
             {children}
           </main>
-
-          <Toaster
-            richColors
-            position="top-right"
-            closeButton
-          />
 
           <footer className="bg-blue-50 py-12">
             <div className="container mx-auto px-4 text-center text-gray-600">
